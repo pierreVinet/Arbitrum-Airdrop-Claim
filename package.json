@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "claim": "node claim.js"
+  },
+  "name": "Arbitrum-Airdrop-Claim",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/pierreVinet/Arbitrum-Airdrop-Claim.git",
+  "license": "MIT",
+  "dependencies": {
+    "alchemy-sdk": "^2.8.0"
+  }
+}

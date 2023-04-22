@@ -16,6 +16,7 @@ const claim = async () => {
   }
 
   try {
+    // claim ARB tokens
     const tx = await contractWrite.claim();
     console.log(`Transaction hash: ${tx.hash}`);
     await tx.wait();

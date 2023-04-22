@@ -10,7 +10,7 @@ const claim = async () => {
 
   const amountARB = await contractRead.claimableTokens(process.env.PUBLIC_KEY);
   // check if the address is eligible for the airdrop
-  if (amountARB == "0") {
+  if (amountARB.toString() == "0") {
     console.log("This address isn't eligible for the Arbitrum airdrop.");
     return;
   }

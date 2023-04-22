@@ -1,16 +1,28 @@
-// Setup: npm install @alch/alchemy-sdk
-const { Network, Alchemy } = require("alchemy-sdk");
-
-const settings = {
-  apiKey: process.env.ALCHEMY_API_KEY, // Replace with your Alchemy API Key.
-  network: Network.ARB_MAINNET, // Replace with your network.
-};
-
-const alchemy = new Alchemy(settings);
+const { ethers } = require("ethers");
+const { contractAddress, abi } = require("./constants");
+require("dotenv").config();
 
 const claim = async () => {
-  const latestBlock = await alchemy.core.getBlockNumber();
-  console.log("The latest block number is", latestBlock);
+  const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const contractRead = new ethers.Contract(contractAddress, abi, provider);
+  const contractWrite = new ethers.Contract(contractAddress, abi, wallet);
+
+  const amountARB = await contractRead.claimableTokens(process.env.PUBLIC_KEY);
+  // check if the address is eligible for the airdrop
+  if (amountARB == "0") {
+    console.log("This address isn't eligible for the Arbitrum airdrop.");
+    return;
+  }
+
+  try {
+    const tx = await contractWrite.claim();
+    console.log(`Transaction hash: ${tx.hash}`);
+    await tx.wait();
+    console.log("Airdrop claimed successfully!");
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 claim();

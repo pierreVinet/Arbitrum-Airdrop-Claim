@@ -1,24 +1,13 @@
 // address of the token distribution contract (ARB)
-const contractAddress = "0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9";
+const contractAddress = "0x6Ee2df4cf0627CE1a44E56c27dfFc43BDea68607 ";
 
 // abi of the token distribution contract (ARB)
 const abi = [
   {
     inputs: [
-      {
-        internalType: "contract IERC20VotesUpgradeable",
-        name: "_token",
-        type: "address",
-      },
-      {
-        internalType: "address payable",
-        name: "_sweepReceiver",
-        type: "address",
-      },
-      { internalType: "address", name: "_owner", type: "address" },
-      { internalType: "uint256", name: "_claimPeriodStart", type: "uint256" },
-      { internalType: "uint256", name: "_claimPeriodEnd", type: "uint256" },
-      { internalType: "address", name: "delegateTo", type: "address" },
+      { internalType: "address", name: "_vrf", type: "address" },
+      { internalType: "uint256", name: "_lotteryDuration", type: "uint256" },
+      { internalType: "uint256", name: "_minDepositAmount", type: "uint256" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -27,9 +16,47 @@ const abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "LotteryEnded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "endTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "LotteryDeployer",
+        type: "address",
+      },
+    ],
+    name: "LotteryStarted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
-        name: "recipient",
+        name: "winner",
         type: "address",
       },
       {
@@ -39,225 +66,151 @@ const abi = [
         type: "uint256",
       },
     ],
-    name: "CanClaim",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "HasClaimed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newSweepReceiver",
-        type: "address",
-      },
-    ],
-    name: "SweepReceiverSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "Swept",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "Withdrawal",
+    name: "WinnerSelected",
     type: "event",
   },
   {
     inputs: [],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "delegatee", type: "address" },
-      { internalType: "uint256", name: "expiry", type: "uint256" },
-      { internalType: "uint8", name: "v", type: "uint8" },
-      { internalType: "bytes32", name: "r", type: "bytes32" },
-      { internalType: "bytes32", name: "s", type: "bytes32" },
-    ],
-    name: "claimAndDelegate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "claimPeriodEnd",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "claimPeriodStart",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "claimableTokens",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "owner",
+    name: "deployer",
     outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address[]", name: "_recipients", type: "address[]" },
-      {
-        internalType: "uint256[]",
-        name: "_claimableAmount",
-        type: "uint256[]",
-      },
-    ],
-    name: "setRecipients",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address payable",
-        name: "_sweepReceiver",
-        type: "address",
-      },
-    ],
-    name: "setSweepReciever",
+    name: "endLotteryIfNoOneJoins",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
-    name: "sweep",
+    name: "enter",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [],
-    name: "sweepReceiver",
-    outputs: [{ internalType: "address payable", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "token",
+    name: "getLotteryManager",
     outputs: [
-      {
-        internalType: "contract IERC20VotesUpgradeable",
-        name: "",
-        type: "address",
-      },
+      { internalType: "address", name: "LotteryDeployer", type: "address" },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "totalClaimable",
+    name: "getLotteryTimes",
+    outputs: [
+      { internalType: "uint256", name: "startTime", type: "uint256" },
+      { internalType: "uint256", name: "endTime", type: "uint256" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPlayers",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPreviousWinner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRandomNumber",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
-    name: "transferOwnership",
+    inputs: [],
+    name: "lotteryDuration",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lotteryEndTime",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lotteryStartTime",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "minDepositAmount",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "pickWinner",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
-    name: "withdraw",
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "players",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "previousWinner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "randomNumber",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "startLottery",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "state",
+    outputs: [
+      {
+        internalType: "enum GelatoLottery.LotteryState",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "vrf",
+    outputs: [{ internalType: "contract VRF", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
-
-module.exports = {
-  abi,
-  contractAddress,
-};
